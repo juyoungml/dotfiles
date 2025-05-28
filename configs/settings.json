@@ -1,13 +1,23 @@
 {
     "workbench.colorTheme": "One Dark Pro Darker",
     "workbench.tree.indent": 20,
+    "workbench.iconTheme": "vscode-icons",
+    "workbench.startupEditor": "newUntitledFile",
+    "workbench.editor.enablePreview": false,
+    "workbench.editor.closeOnFileDelete": true,
     "files.exclude": {
         "**/*.pyc": true,
         "**/__pycache__": true,
-        "**/node_modules": true
+        "**/node_modules": true,
+        "**/.git": true,
+        "**/.DS_Store": true,
+        "**/Thumbs.db": true
     },
     "search.exclude": {
-        "**/node_modules": true
+        "**/node_modules": true,
+        "**/.git": true,
+        "**/dist": true,
+        "**/build": true
     },
     "[python]": {
         "editor.formatOnSave": true,
@@ -50,5 +60,45 @@
     },
     "files.autoSave": "onFocusChange",
     "github.copilot.editor.enableAutoCompletions": true,
-    "window.newWindowProfile": "Default"
+    "window.newWindowProfile": "Default",
+    
+    // Editor enhancements
+    "editor.fontFamily": "JetBrains Mono, 'Courier New', monospace",
+    "editor.fontSize": 14,
+    "editor.lineHeight": 1.5,
+    "editor.fontLigatures": true,
+    "editor.tabSize": 4,
+    "editor.insertSpaces": true,
+    "editor.detectIndentation": true,
+    "editor.wordWrap": "on",
+    "editor.lineNumbers": "on",
+    "editor.renderWhitespace": "boundary",
+    "editor.rulers": [80, 120],
+    "editor.minimap.enabled": true,
+    "editor.bracketPairColorization.enabled": true,
+    "editor.guides.bracketPairs": true,
+    
+    // Terminal settings
+    "terminal.integrated.defaultProfile.osx": "bash",
+    "terminal.integrated.defaultProfile.linux": "bash",
+    "terminal.integrated.fontSize": 14,
+    "terminal.integrated.fontFamily": "JetBrains Mono",
+    
+    // Git settings
+    "git.enableSmartCommit": true,
+    "git.confirmSync": false,
+    "git.autofetch": true,
+    "git.showPushSuccessNotification": true,
+    
+    // Extension settings
+    "extensions.autoUpdate": true,
+    "extensions.ignoreRecommendations": false,
+    
+    // Performance
+    "files.watcherExclude": {
+        "**/.git/objects/**": true,
+        "**/.git/subtree-cache/**": true,
+        "**/node_modules/*/**": true,
+        "**/.hg/store/**": true
+    }
 }

@@ -10,21 +10,40 @@ This is a personal dotfiles repository for development environment setup and syn
 
 ```
 ├── configs/           # Configuration files
-│   ├── .bashrc       # Shell configuration with aliases
+│   ├── .bashrc       # Enhanced shell with git branch, tab completion, aliases
 │   ├── .gitconfig    # Git user settings
-│   └── settings.json # VS Code settings
-└── scripts/          # Installation scripts
-    ├── install_miniconda.sh  # Python environment (Miniconda3)
-    ├── install_poetry.sh     # Python dependency manager
-    ├── remove_poetry.sh      # Poetry removal
-    ├── install_gh.sh         # GitHub CLI (cross-platform)
-    ├── install_uv.sh         # Fast Python package manager
-    └── install_tree.sh       # Directory tree utility (cross-platform)
+│   ├── .tmux.conf    # Tmux with mouse support and scrolling
+│   ├── settings.json # Enhanced VS Code settings
+│   └── extensions.json # VS Code extension recommendations
+├── scripts/          # Installation scripts
+│   ├── install_miniconda.sh  # Python environment (Miniconda3)
+│   ├── install_poetry.sh     # Python dependency manager
+│   ├── remove_poetry.sh      # Poetry removal
+│   ├── install_gh.sh         # GitHub CLI (cross-platform)
+│   ├── install_uv.sh         # Fast Python package manager
+│   ├── install_tree.sh       # Directory tree utility (cross-platform)
+│   └── install_nvidia.sh     # NVIDIA GPU support (Linux)
+└── Makefile          # Simplified installation management
 ```
 
 ## Common Tasks
 
-**Complete environment setup:**
+**Complete environment setup (recommended):**
+```bash
+make install-all
+```
+
+**Component-specific installation:**
+```bash
+make install-tools      # All development tools
+make install-configs    # Configuration files only
+make install-python     # Python tools (miniconda, poetry, uv)
+make install-dev        # Development tools (gh, tree)
+make install-nvidia     # NVIDIA GPU support (Linux)
+make install-vscode     # VS Code extensions
+```
+
+**Manual installation:**
 ```bash
 # Install all development tools
 ./scripts/install_miniconda.sh
@@ -32,25 +51,31 @@ This is a personal dotfiles repository for development environment setup and syn
 ./scripts/install_gh.sh
 ./scripts/install_uv.sh
 ./scripts/install_tree.sh
+./scripts/install_nvidia.sh  # Linux only
 
 # Apply configurations
 cp configs/.bashrc ~/
 cp configs/.gitconfig ~/
-# Copy configs/settings.json to VS Code user settings directory
+cp configs/.tmux.conf ~/
+# Copy configs/settings.json and extensions.json to VS Code directories
 ```
 
 **Individual tool installation:**
 ```bash
-# Install specific tools
-./scripts/install_gh.sh     # GitHub CLI
-./scripts/install_uv.sh     # Modern Python package manager
-./scripts/install_tree.sh   # Directory visualization
+make miniconda          # Python environment
+make poetry             # Python dependency manager
+make gh                 # GitHub CLI
+make nvidia             # NVIDIA support
 ```
 
 ## Development Notes
 
-- **Cross-platform support**: Scripts detect OS (Linux/macOS) and use appropriate package managers
-- **VS Code integration**: Python (Black formatter), TypeScript/JavaScript (Prettier), ESLint on save
-- **Python tooling**: Multiple package managers supported (Poetry, uv) with automatic PATH configuration
-- **Shell environment**: Standard bash configuration with useful aliases and history settings
-- All scripts are executable and include error handling for unsupported systems
+- **Makefile automation**: Use `make help` to see all available commands for easy installation
+- **Cross-platform support**: Scripts detect OS (Linux/macOS) and use appropriate package managers  
+- **Enhanced shell**: `.bashrc` includes git branch display, tab completion, and comprehensive aliases
+- **Tmux configuration**: Mouse support enabled with scrolling and improved navigation
+- **VS Code integration**: Enhanced settings with editor improvements, extension recommendations
+- **Python tooling**: Multiple package managers (Poetry, uv) with automatic PATH configuration
+- **NVIDIA support**: Comprehensive GPU setup including drivers, CUDA, and Docker integration
+- **Safety features**: Interactive prompts for destructive operations (rm, cp, mv)
+- All scripts include error handling and cross-platform compatibility checks
