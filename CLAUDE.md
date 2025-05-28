@@ -22,6 +22,7 @@ This is a personal dotfiles repository for development environment setup and syn
 │   ├── install_gh.sh         # GitHub CLI (cross-platform)
 │   ├── install_uv.sh         # Fast Python package manager
 │   ├── install_tree.sh       # Directory tree utility (cross-platform)
+│   ├── install_claude_code.sh # Claude Code CLI (cross-platform)
 │   └── install_nvidia.sh     # NVIDIA GPU support (Linux)
 └── Makefile          # Simplified installation management
 ```
@@ -51,6 +52,7 @@ make install-vscode     # VS Code extensions
 ./scripts/install_gh.sh
 ./scripts/install_uv.sh
 ./scripts/install_tree.sh
+./scripts/install_claude_code.sh
 ./scripts/install_nvidia.sh  # Linux only
 
 # Apply configurations
@@ -65,6 +67,7 @@ cp configs/.tmux.conf ~/
 make miniconda          # Python environment
 make poetry             # Python dependency manager
 make gh                 # GitHub CLI
+make claude-code        # Claude Code CLI
 make nvidia             # NVIDIA support
 ```
 

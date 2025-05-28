@@ -25,10 +25,11 @@ help:
 	@echo "  uv             - Install uv"
 	@echo "  gh             - Install GitHub CLI"
 	@echo "  tree           - Install tree command"
+	@echo "  claude-code    - Install Claude Code CLI"
 	@echo "  nvidia         - Install NVIDIA drivers and CUDA"
 
 # Install all development tools
-install-tools: miniconda poetry uv gh tree
+install-tools: miniconda poetry uv gh tree claude-code
 	@echo "✓ All development tools installed"
 
 # Install Python-related tools
@@ -36,7 +37,7 @@ install-python: miniconda poetry uv
 	@echo "✓ Python development tools installed"
 
 # Install general development tools
-install-dev: gh tree
+install-dev: gh tree claude-code
 	@echo "✓ Development tools installed"
 
 # Copy configuration files
@@ -74,6 +75,10 @@ gh:
 tree:
 	@echo "Installing tree..."
 	@./scripts/install_tree.sh
+
+claude-code:
+	@echo "Installing Claude Code..."
+	@./scripts/install_claude_code.sh
 
 nvidia:
 	@echo "Installing NVIDIA support..."

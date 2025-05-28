@@ -18,6 +18,7 @@ Setup and sync the development environment with ease.
 - `install_gh.sh` - GitHub CLI installation (cross-platform)
 - `install_uv.sh` - uv installation (fast Python package manager)
 - `install_tree.sh` - tree command installation (cross-platform)
+- `install_claude_code.sh` - Claude Code CLI installation (cross-platform)
 - `install_nvidia.sh` - NVIDIA GPU drivers, CUDA, and Docker support (Linux)
 
 ## Quick Setup
@@ -47,6 +48,7 @@ make help
 ./scripts/install_gh.sh
 ./scripts/install_uv.sh
 ./scripts/install_tree.sh
+./scripts/install_claude_code.sh
 ./scripts/install_nvidia.sh  # Linux only
 
 # Copy configurations
@@ -64,8 +66,7 @@ cp configs/.tmux.conf ~/
 - [x] .vscode configs
 - [x] NVIDIA GPU configs
 - [x] Create Makefile so that the installation scripts are easier to use
-- [ ] Install Claude Code
-- [ ] Install Cursor (Mac only)
+- [x] Install Claude Code
 
 ## Applications
 
