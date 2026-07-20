@@ -42,6 +42,12 @@ The promotion flow is local observation → repeated/explicit confirmation → r
 public instruction, reusable skill, or private memory fact. Instructions guide an
 agent but do not enforce security; permissions and secret managers do that.
 
+Cluster-specific behavior follows the same boundary. Stable operational habits
+such as uv-first Python, canonical VAST paths, Slurm monitoring, and VAST-friendly
+inspection belong in a public skill or shell helper. Runtime endpoints, raw agent
+state, project secrets, node exclusions, and job-name prefixes stay local or
+project-specific.
+
 ## Public bootstrap
 
 `bootstrap.sh` is the canonical entrypoint and is also recognized by GitHub

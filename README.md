@@ -44,6 +44,7 @@ dots auth                   # one-time op + gh + hf setup
 dots secrets -- python app.py  # inject 1Password refs for one process
 dots explain auth           # understand a design decision
 dots explain tmux           # beginner tmux guide and key reference
+dots quiz                   # self-check the repo contents
 dots update                 # fast-forward and re-link
 ```
 

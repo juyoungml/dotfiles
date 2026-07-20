@@ -15,7 +15,8 @@ Usage: dots <command>
   secrets -- COMMAND  run one command with 1Password secret references
   update               fast-forward the repo and re-apply links
   edit                 open this repository
-  explain TOPIC        explain shell, auth, agents, bootstrap, or tmux
+  explain TOPIC        explain shell, auth, agents, cluster, bootstrap, or tmux
+  quiz                 review the dotfiles with self-check questions
 EOF
 }
 
@@ -82,10 +83,79 @@ explain() {
     shell) sed -n '/^## Shell design/,/^## /p' "$REPO_DIR/docs/design.md" ;;
     auth) sed -n '/^## Authentication/,/^## /p' "$REPO_DIR/docs/design.md" ;;
     agents) sed -n '/^## Agent boundary/,/^## /p' "$REPO_DIR/docs/design.md" ;;
+    cluster) cat "$REPO_DIR/docs/cluster-usage-audit.md" ;;
     bootstrap) sed -n '/^## Public bootstrap/,/^## /p' "$REPO_DIR/docs/design.md" ;;
     tmux) cat "$REPO_DIR/docs/tmux.md" ;;
-    *) echo "Choose: shell, auth, agents, bootstrap, or tmux" >&2; exit 2 ;;
+    *) echo "Choose: shell, auth, agents, cluster, bootstrap, or tmux" >&2; exit 2 ;;
   esac
+}
+
+quiz() {
+  quiz_file="$REPO_DIR/docs/quiz.md"
+  [ -r "$quiz_file" ] || { echo "Missing $quiz_file" >&2; exit 1; }
+
+  if [ ! -t 0 ]; then
+    cat "$quiz_file"
+    return
+  fi
+
+  score=0
+  total=0
+  section=
+  question=
+  choices=
+  answer=
+  why=
+
+  ask_question() {
+    [ -n "$question" ] || return 0
+    total=$((total + 1))
+    printf '\n%s\n\nQ%d: %s\n%s\n' "$section" "$total" "$question" "$choices"
+    printf 'Choice [A-D, q to quit]: '
+    IFS= read -r reply < /dev/tty || reply=
+    reply=$(printf '%s' "$reply" | tr '[:lower:]' '[:upper:]')
+    if [ "$reply" = q ] || [ "$reply" = Q ]; then
+      printf '\nScore: %s/%s\n' "$score" "$((total - 1))"
+      exit 0
+    fi
+    if [ "$reply" = "$answer" ]; then
+      score=$((score + 1))
+      printf 'Correct.\n'
+    else
+      printf 'Answer: %s\n' "$answer"
+    fi
+    [ -z "$why" ] || printf '%s\n' "$why"
+    printf 'Score: %s/%s\n' "$score" "$total"
+    printf 'Press Enter for next... '
+    IFS= read -r _ < /dev/tty || true
+  }
+
+  while IFS= read -r line || [ -n "$line" ]; do
+    case "$line" in
+      '## '*)
+        section=$line
+        ;;
+      'Q: '*)
+        ask_question
+        question=${line#Q: }
+        choices=
+        answer=
+        why=
+        ;;
+      [A-D]') '*)
+        choices="${choices}${line}
+"
+        ;;
+      'Answer: '*)
+        answer=${line#Answer: }
+        ;;
+      'Why: '*)
+        why=${line#Why: }
+        ;;
+    esac
+  done < "$quiz_file"
+  ask_question
+  printf '\nFinal score: %s/%s\n' "$score" "$total"
 }
 
 command=${1:-help}
@@ -110,6 +180,7 @@ case "$command" in
     ;;
   edit) exec "${EDITOR:-vim}" "$REPO_DIR" ;;
   explain) explain "${1:-}" ;;
+  quiz) quiz ;;
   help|-h|--help) usage ;;
   *) echo "Unknown command: $command" >&2; usage >&2; exit 2 ;;
 esac

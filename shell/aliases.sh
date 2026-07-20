@@ -14,6 +14,9 @@ alias py='python3'
 alias venv='uv venv'
 alias activate='source .venv/bin/activate'
 
+alias jc='cd ${TRILLION_JUYOUNG_ROOT:-/mnt/vast/trillion/juyoung}'
+alias jcyan='cd ${TRILLION_JUYOUNG_ROOT:-/mnt/vast/trillion/juyoung}/cyan-projects'
+
 # Prefer modern tools when installed while keeping portable fallbacks.
 command -v eza >/dev/null 2>&1 && alias ls='eza --group-directories-first'
 command -v bat >/dev/null 2>&1 && alias cat='bat --paging=never'

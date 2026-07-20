@@ -21,3 +21,7 @@ Promote knowledge deliberately:
 
 Each folder under `skills/` must contain a `SKILL.md`. The installer links skills
 individually, so existing third-party skills remain untouched.
+
+Current public skills:
+
+- `cluster`: Slurm, VAST, and uv-first workflow defaults for the Trillion cluster.
