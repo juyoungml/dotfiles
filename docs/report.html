@@ -1,0 +1,151 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Dotfiles Renewal — Research &amp; Architecture Report</title>
+  <style>
+    :root { --ink:#18201d; --muted:#5b6963; --paper:#f5f3eb; --card:#fffdf6; --line:#d9d7cb; --green:#1e6f50; --blue:#315f87; --amber:#9a641d; }
+    * { box-sizing:border-box; }
+    body { margin:0; background:var(--paper); color:var(--ink); font:16px/1.6 ui-sans-serif,system-ui,-apple-system,BlinkMacSystemFont,"Segoe UI",sans-serif; }
+    main { width:min(1120px,calc(100% - 36px)); margin:0 auto; padding:64px 0 96px; }
+    header { display:grid; grid-template-columns:1.5fr .8fr; gap:32px; align-items:end; padding-bottom:34px; border-bottom:1px solid var(--line); }
+    h1 { max-width:780px; margin:0; font:700 clamp(42px,7vw,78px)/.98 Georgia,serif; letter-spacing:-.04em; }
+    h2 { margin:64px 0 18px; font:700 31px/1.15 Georgia,serif; letter-spacing:-.02em; }
+    h3 { margin:0 0 8px; font-size:17px; }
+    p { margin:0 0 14px; }
+    a { color:var(--blue); text-underline-offset:3px; }
+    .eyebrow { color:var(--green); font-size:13px; font-weight:800; letter-spacing:.14em; text-transform:uppercase; }
+    .lede { color:var(--muted); font-size:19px; }
+    .meta { color:var(--muted); font-size:14px; }
+    .verdict { margin:32px 0 0; padding:24px 26px; background:var(--ink); color:#fff; border-radius:14px; font-size:20px; }
+    .grid { display:grid; grid-template-columns:repeat(3,1fr); gap:16px; }
+    .card { padding:22px; background:var(--card); border:1px solid var(--line); border-radius:12px; }
+    .number { color:var(--green); font:700 34px/1 Georgia,serif; }
+    .small { color:var(--muted); font-size:14px; }
+    .flow { display:flex; flex-wrap:wrap; gap:8px; align-items:center; margin:22px 0; }
+    .flow span { padding:10px 13px; background:var(--card); border:1px solid var(--line); border-radius:999px; font-size:14px; }
+    .flow b { color:var(--green); }
+    .table-wrap { overflow-x:auto; background:var(--card); border:1px solid var(--line); border-radius:12px; }
+    table { width:100%; border-collapse:collapse; min-width:820px; }
+    th,td { padding:13px 15px; text-align:left; vertical-align:top; border-bottom:1px solid var(--line); }
+    th { color:var(--muted); font-size:12px; letter-spacing:.06em; text-transform:uppercase; }
+    tr:last-child td { border-bottom:0; }
+    .recommended { background:#e8f2eb; }
+    code { padding:.1em .35em; background:#e8e7df; border-radius:4px; font:14px ui-monospace,SFMono-Regular,Menlo,monospace; }
+    pre { overflow:auto; padding:20px; background:#17201d; color:#eaf2ec; border-radius:12px; font:14px/1.55 ui-monospace,SFMono-Regular,Menlo,monospace; }
+    ul { padding-left:20px; }
+    .callout { padding:20px 22px; border-left:4px solid var(--amber); background:#fff6df; }
+    .sources li { margin-bottom:9px; }
+    footer { margin-top:72px; padding-top:22px; border-top:1px solid var(--line); color:var(--muted); }
+    @media (max-width:760px) { header,.grid { grid-template-columns:1fr; } main { padding-top:36px; } }
+  </style>
+</head>
+<body>
+<main>
+  <header>
+    <div>
+      <p class="eyebrow">Dotfiles renewal · July 2026</p>
+      <h1>Small enough to understand. Strong enough to rebuild a machine.</h1>
+    </div>
+    <p class="lede">A research-backed plan for a public, fast, secure, <code>uv</code>-first and agent-native development environment.</p>
+  </header>
+
+  <p class="verdict"><strong>Recommendation:</strong> use a normal public Git repository with a tiny idempotent deployer today. Keep source files manager-independent, so Chezmoi remains an easy upgrade only when real templating pressure appears.</p>
+
+  <h2>What the usage audit says</h2>
+  <div class="grid">
+    <div class="card"><div class="number">86</div><h3>Python projects</h3><p class="small"><code>pyproject.toml</code> is common and 53 repositories already use <code>uv.lock</code>. Python is the center of gravity.</p></div>
+    <div class="card"><div class="number">40+</div><h3>Active Git repositories</h3><p class="small">Research, evaluation, writing, slides, and web projects make fast Git/worktree ergonomics more valuable than a decorative prompt.</p></div>
+    <div class="card"><div class="number">2</div><h3>Daily shells</h3><p class="small">The requested Bash setup and the actual Zsh environment should share behavior rather than drift into two configurations.</p></div>
+  </div>
+  <p class="small" style="margin-top:14px">The audit inspected aggregate manifests, directory names, installed tools, and reviewed agent preferences. It did not copy credentials, prompt transcripts, auth files, or raw session history.</p>
+
+  <h2>How people manage dotfiles</h2>
+  <div class="table-wrap"><table>
+    <thead><tr><th>Approach</th><th>Strength</th><th>Cost / failure mode</th><th>Fit here</th></tr></thead>
+    <tbody>
+      <tr class="recommended"><td><strong>Small custom linker</strong></td><td>Plain files, zero runtime dependency, exact conflict/backup behavior, easy profiles</td><td>You own ~200 lines of boring installer code</td><td><strong>Best now</strong>: learnable and minimal</td></tr>
+      <tr><td><a href="https://www.gnu.org/software/stow/manual/stow.html">GNU Stow</a></td><td>Mature symlink farms and conflict detection</td><td>Bootstrap dependency; mirrored package trees can feel indirect</td><td>Good if config groups multiply</td></tr>
+      <tr><td><a href="https://yadm.io/docs/overview">yadm</a></td><td>Git-native, files stay in place, host/OS alternates</td><td>Special command and encryption/alternate conventions</td><td>Good Git-first alternative</td></tr>
+      <tr><td><a href="https://www.chezmoi.io/comparison-table/">Chezmoi</a></td><td>Excellent templates, machine variance, dry diff, password-manager integration</td><td>Larger state/render model and transformed source names</td><td>Best future upgrade if templates become real needs</td></tr>
+      <tr><td><a href="https://www.atlassian.com/git/tutorials/dotfiles">Bare Git worktree</a></td><td>No symlinks or extra manager</td><td><code>$HOME</code> becomes the worktree; collisions, backups, templates and secrets are awkward</td><td>Not recommended</td></tr>
+    </tbody>
+  </table></div>
+
+  <h2>Patterns worth borrowing</h2>
+  <div class="grid">
+    <div class="card"><h3><a href="https://github.com/holman/dotfiles">Holman</a></h3><p>Topic-oriented modules make ownership legible. Borrow the idea, but use an explicit load list so dead modules do not silently tax every shell.</p></div>
+    <div class="card"><h3><a href="https://github.com/thoughtbot/dotfiles">thoughtbot</a></h3><p>A shared public base plus local personal overlays is the right security and customization boundary.</p></div>
+    <div class="card"><h3><a href="https://github.com/mathiasbynens/dotfiles">Mathias Bynens</a></h3><p>Shows the reach of a bootstrap and macOS defaults. Useful reference, but broader and more macOS-heavy than this setup should become.</p></div>
+  </div>
+
+  <h2>Target architecture</h2>
+  <div class="flow" aria-label="Architecture flow">
+    <span>public repo</span><b>→</b><span>tiny bootstrap</span><b>→</b><span>profile resolver</span><b>→</b><span>packages + backup-safe links</span><b>→</b><span>one-time auth</span><b>→</b><span>fast explicit shell modules</span>
+  </div>
+  <pre>config/       tiny Bash, Zsh, Git, and tmux entrypoints
+shell/        common → aliases/functions → optional integrations
+packages/     explicit core and dev manifests
+agents/       reviewed public instructions, skills, and memory policy
+examples/     machine-local files and safe 1Password references
+bin/dots      doctor, auth, secrets, update, explain
+public/       stable vanity bootstrap route</pre>
+
+  <h2>Authentication: remove friction, not security</h2>
+  <div class="grid">
+    <div class="card"><h3>GitHub</h3><p>Use <code>gh auth login --web --git-protocol ssh</code> once. GitHub CLI stores OAuth in the OS credential store when available. Do not globally export <code>GH_TOKEN</code>; it overrides stored auth for every child process.</p></div>
+    <div class="card"><h3>Hugging Face</h3><p>Use <code>hf auth login</code> with browser/device login. For headless automation, scope <code>HF_TOKEN</code> narrowly and use least privilege.</p></div>
+    <div class="card"><h3>1Password</h3><p>Use desktop biometric integration and <code>op run</code> for one command. Keep only <code>op://</code> locators in reference files; even locator names can reveal metadata.</p></div>
+  </div>
+  <div class="callout" style="margin-top:16px"><strong>Important:</strong> <code>op run</code> places plaintext in a child environment. Other processes under the same OS user may observe it. Never wrap the whole shell, IDE, or agent session.</div>
+
+  <h2>Agent-native without publishing your life</h2>
+  <div class="table-wrap"><table>
+    <thead><tr><th>Layer</th><th>Public repository</th><th>Private/local</th></tr></thead>
+    <tbody>
+      <tr><td>Instructions</td><td>Stable principles: minimal changes, teach reasoning, verify, preserve unrelated work</td><td>Employer/client constraints and private machine rules</td></tr>
+      <tr><td>Skills</td><td>Reusable, sanitized <code>SKILL.md</code> workflows</td><td>Internal URLs, account IDs, proprietary examples</td></tr>
+      <tr><td>Memory</td><td>Policy and schema templates only</td><td>Raw observations, auto-memory, project context, transcripts</td></tr>
+      <tr><td>Secrets</td><td>At most safe <code>op://</code> references</td><td>Secret manager only; never agent memory</td></tr>
+    </tbody>
+  </table></div>
+  <p>The durable loop is: local observation → repetition or explicit approval → review → public instruction, reusable skill, or private fact. This prevents one-off agent guesses from becoming permanent taste.</p>
+
+  <h2>Public bootstrap and trust</h2>
+  <p>A memorable <code>juyoungml.site/bashrc</code> route is useful, but a custom domain does not make mutable remote code safer. Prefer a two-step inspect/run path, and offer the pipe only as a convenience:</p>
+  <pre>curl -fsSLo /tmp/dotfiles https://juyoungml.site/bashrc
+less /tmp/dotfiles
+sh /tmp/dotfiles --profile dev
+
+# Convenient, but executes mutable remote code:
+curl -fsSL https://juyoungml.site/bashrc | sh -s -- --profile dev</pre>
+  <p>For stronger integrity, use an immutable GitHub release, pin a tag, publish SHA-256 checksums, and verify assets. Before making the repository public, scan the <em>full Git history</em> and rotate any exposed credential before history rewriting.</p>
+
+  <h2>What was intentionally removed</h2>
+  <ul>
+    <li>Poetry, its uninstall script, and global <code>pip</code> aliases: <code>uv</code> now owns the Python workflow.</li>
+    <li>Miniconda base-shell initialization: it overlaps with <code>uv</code> and adds startup mutation.</li>
+    <li>Unpinned CUDA/NVIDIA/NodeSource installers: host-specific infrastructure should not live in a universal bootstrap.</li>
+    <li>Oh My Zsh/theme dependence and Git work on every prompt: useful features can return only when their recurring value exceeds their cost.</li>
+    <li>Competing VS Code formatters, themes, icon packs, and AI extensions: recommendations are now a small language/tooling baseline.</li>
+  </ul>
+
+  <h2>Primary sources</h2>
+  <ul class="sources">
+    <li><a href="https://docs.astral.sh/uv/">Astral uv documentation</a></li>
+    <li><a href="https://cli.github.com/manual/gh_auth_login">GitHub CLI authentication manual</a> and <a href="https://cli.github.com/manual/gh_help_environment">environment precedence</a></li>
+    <li><a href="https://huggingface.co/docs/huggingface_hub/main/en/guides/cli">Hugging Face CLI</a> and <a href="https://huggingface.co/docs/huggingface_hub/en/package_reference/environment_variables">environment variables</a></li>
+    <li><a href="https://www.1password.dev/cli/app-integration">1Password CLI app integration</a>, <a href="https://www.1password.dev/cli/secrets-environment-variables">runtime environment secrets</a>, and <a href="https://www.1password.dev/ssh/agent">SSH agent</a></li>
+    <li><a href="https://developers.openai.com/codex/guides/agents-md">OpenAI AGENTS.md guidance</a> and <a href="https://developers.openai.com/codex/skills">Codex skills</a></li>
+    <li><a href="https://code.claude.com/docs/en/memory">Claude Code memory</a> and <a href="https://code.claude.com/docs/en/skills">skills</a></li>
+    <li><a href="https://agentskills.io/home">Agent Skills open format</a> and <a href="https://agents.md/">AGENTS.md ecosystem</a></li>
+    <li><a href="https://docs.github.com/en/codespaces/setting-your-user-preferences/personalizing-github-codespaces-for-your-account">GitHub Codespaces dotfiles entrypoints</a></li>
+    <li><a href="https://docs.github.com/en/authentication/keeping-your-account-and-data-secure/removing-sensitive-data-from-a-repository">GitHub secret-removal guidance</a> and <a href="https://docs.github.com/en/code-security/how-tos/secure-your-supply-chain/secure-your-dependencies/verify-release-integrity">release integrity verification</a></li>
+    <li><a href="https://github.com/webpro/awesome-dotfiles">Awesome Dotfiles landscape</a></li>
+  </ul>
+
+  <footer>Prepared from a local usage audit and three parallel research tracks: dotfile managers/bootstrap safety, CLI authentication, and agent-native configuration.</footer>
+</main>
+</body>
+</html>

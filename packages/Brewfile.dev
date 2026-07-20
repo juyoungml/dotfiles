@@ -1,0 +1,8 @@
+# Deliberately optional developer ergonomics.
+brew "bat"
+brew "eza"
+brew "shellcheck"
+brew "shfmt"
+brew "watchexec"
+brew "zsh-syntax-highlighting"
+cask "1password-cli"

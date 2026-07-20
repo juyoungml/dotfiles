@@ -1,0 +1,17 @@
+# Minimal Zsh entrypoint; intentionally no framework or theme dependency.
+export DOTFILES_SHELL=zsh
+. "$HOME/.config/dotfiles/shell/common.sh"
+
+HISTFILE="$HOME/.zsh_history"
+HISTSIZE=10000
+SAVEHIST=20000
+setopt APPEND_HISTORY HIST_IGNORE_DUPS HIST_REDUCE_BLANKS SHARE_HISTORY
+autoload -Uz compinit
+compinit -d "$HOME/.cache/zsh/zcompdump" 2>/dev/null || compinit
+
+# %1~ shows only the current directory; no git subprocess is run per prompt.
+PROMPT='%F{blue}%1~%f %# '
+
+. "$HOME/.config/dotfiles/shell/aliases.sh"
+. "$HOME/.config/dotfiles/shell/functions.sh"
+. "$HOME/.config/dotfiles/shell/optional.sh"

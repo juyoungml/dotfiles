@@ -1,0 +1,8 @@
+#!/bin/sh
+# Deploy this file at https://juyoungml.site/bashrc as the stable vanity endpoint.
+set -eu
+URL=${DOTFILES_BOOTSTRAP_URL:-https://raw.githubusercontent.com/juyoungml/dotfiles/main/bootstrap.sh}
+installer=$(mktemp "${TMPDIR:-/tmp}/dotfiles-bootstrap.XXXXXX")
+trap 'rm -f "$installer"' EXIT HUP INT TERM
+curl -fsSL "$URL" -o "$installer"
+sh "$installer" "$@"
