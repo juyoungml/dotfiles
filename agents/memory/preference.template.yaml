@@ -1,0 +1,5 @@
+- statement: "Example preference stated in plain language"
+  source: "explicit user request or repeated observation"
+  reviewed_at: "YYYY-MM-DD"
+  confidence: "confirmed"
+  expires_at: null

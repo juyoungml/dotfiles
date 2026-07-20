@@ -1,0 +1,4 @@
+# Machine/private identity. This file is copied, never symlinked or committed.
+[user]
+	name = Your Name
+	email = you@example.com

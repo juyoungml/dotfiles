@@ -1,0 +1,13 @@
+# Fast daily essentials. `brew bundle --file=...` is idempotent.
+brew "git"
+brew "gh"
+brew "uv"
+brew "tmux"
+brew "ripgrep"
+brew "fd"
+brew "fzf"
+brew "zoxide"
+brew "jq"
+brew "tree"
+brew "git-delta"
+brew "gdu"

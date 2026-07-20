@@ -1,0 +1,23 @@
+# Minimal Bash entrypoint. Shared behavior lives in shell/ so Bash and Zsh stay aligned.
+case $- in *i*) ;; *) return ;; esac
+
+export DOTFILES_SHELL=bash
+. "$HOME/.config/dotfiles/shell/common.sh"
+
+HISTCONTROL=ignoreboth:erasedups
+HISTSIZE=10000
+HISTFILESIZE=20000
+shopt -s histappend checkwinsize
+
+# A prompt without subprocesses stays fast even inside very large repositories.
+PS1='\[\033[34m\]\w\[\033[0m\] \$ '
+
+if [ -r /usr/share/bash-completion/bash_completion ]; then
+  . /usr/share/bash-completion/bash_completion
+elif [ -r /etc/bash_completion ]; then
+  . /etc/bash_completion
+fi
+
+. "$HOME/.config/dotfiles/shell/aliases.sh"
+. "$HOME/.config/dotfiles/shell/functions.sh"
+. "$HOME/.config/dotfiles/shell/optional.sh"

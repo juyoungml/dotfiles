@@ -1,0 +1,11 @@
+# Machine-local configuration and generated files
+.DS_Store
+*.local
+*.bak
+*.log
+private/
+secrets.env
+
+# Safe, fake-value templates remain versioned.
+!examples/git.local
+!examples/secrets.env

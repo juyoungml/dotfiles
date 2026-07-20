@@ -1,0 +1,115 @@
+#!/bin/sh
+# One discoverable interface for maintaining this setup.
+set -eu
+
+SCRIPT=$0
+[ -L "$SCRIPT" ] && SCRIPT=$(readlink "$SCRIPT")
+REPO_DIR=$(CDPATH= cd -- "$(dirname -- "$SCRIPT")/.." && pwd)
+
+usage() {
+  cat <<'EOF'
+Usage: dots <command>
+
+  doctor              check tools, links, and authentication state
+  auth [all|gh|hf|op] guide one-time secure logins
+  secrets -- COMMAND  run one command with 1Password secret references
+  update               fast-forward the repo and re-apply links
+  edit                 open this repository
+  explain TOPIC        explain shell, auth, agents, bootstrap, or tmux
+EOF
+}
+
+status() {
+  label=$1; shift
+  if "$@" >/dev/null 2>&1; then printf 'ok       %s\n' "$label"; return 0
+  else printf 'missing  %s\n' "$label"; return 1; fi
+}
+
+doctor() {
+  failures=0
+  printf 'Tools\n'
+  for tool in git uv gh hf tmux rg fzf jq op zoxide delta watchexec glances nvitop; do
+    status "$tool" command -v "$tool" || failures=$((failures + 1))
+  done
+  if command -v gdu >/dev/null 2>&1 || command -v gdu-go >/dev/null 2>&1; then
+    printf 'ok       gdu\n'
+  else
+    printf 'missing  gdu\n'
+    failures=$((failures + 1))
+  fi
+  printf '\nAuthentication\n'
+  status 'GitHub CLI login' gh auth status || true
+  status 'Hugging Face login' hf auth whoami || true
+  status '1Password account' op account list || true
+  printf '\nConfiguration\n'
+  for file in "$HOME/.bashrc" "$HOME/.zshrc" "$HOME/.gitconfig" "$HOME/.tmux.conf"; do
+    if [ -L "$file" ]; then printf 'ok       %s -> %s\n' "$file" "$(readlink "$file")"
+    else printf 'local    %s (not managed by a symlink)\n' "$file"; fi
+  done
+  identity=$(git config --global user.email 2>/dev/null || true)
+  case "$identity" in
+    ''|*@example.com) printf 'setup    Git identity: edit ~/.config/dotfiles/git.local\n' ;;
+    *) printf 'ok       Git identity is configured\n' ;;
+  esac
+  [ "$failures" -eq 0 ] || printf '\nInstall missing developer tools with: %s/install.sh --profile dev\n' "$REPO_DIR"
+}
+
+auth_one() {
+  case "$1" in
+    gh)
+      if gh auth status >/dev/null 2>&1; then echo "GitHub CLI is already authenticated."
+      else gh auth login --web --git-protocol ssh; fi
+      ;;
+    hf)
+      if hf auth whoami >/dev/null 2>&1; then echo "Hugging Face is already authenticated."
+      else hf auth login; fi
+      ;;
+    op)
+      cat <<'EOF'
+Enable 1Password desktop integration once:
+  1. Open 1Password > Settings > Developer.
+  2. Enable “Integrate with 1Password CLI” and biometric unlock.
+  3. Run `op account list` to verify it.
+EOF
+      op account list
+      ;;
+    *) echo "Unknown auth provider: $1" >&2; exit 2 ;;
+  esac
+}
+
+explain() {
+  case "${1:-}" in
+    shell) sed -n '/^## Shell design/,/^## /p' "$REPO_DIR/docs/design.md" ;;
+    auth) sed -n '/^## Authentication/,/^## /p' "$REPO_DIR/docs/design.md" ;;
+    agents) sed -n '/^## Agent boundary/,/^## /p' "$REPO_DIR/docs/design.md" ;;
+    bootstrap) sed -n '/^## Public bootstrap/,/^## /p' "$REPO_DIR/docs/design.md" ;;
+    tmux) cat "$REPO_DIR/docs/tmux.md" ;;
+    *) echo "Choose: shell, auth, agents, bootstrap, or tmux" >&2; exit 2 ;;
+  esac
+}
+
+command=${1:-help}
+[ "$#" -eq 0 ] || shift
+case "$command" in
+  doctor) doctor ;;
+  auth)
+    provider=${1:-all}
+    if [ "$provider" = all ]; then auth_one op; auth_one gh; auth_one hf; else auth_one "$provider"; fi
+    ;;
+  secrets)
+    [ "${1:-}" = -- ] && shift
+    [ "$#" -gt 0 ] || { echo "Usage: dots secrets -- COMMAND" >&2; exit 2; }
+    env_file="$HOME/.config/dotfiles/secrets.env"
+    [ -r "$env_file" ] || { echo "Create $env_file from examples/secrets.env first." >&2; exit 1; }
+    command -v op >/dev/null 2>&1 || { echo "1Password CLI (op) is required." >&2; exit 1; }
+    exec op run --env-file="$env_file" -- "$@"
+    ;;
+  update)
+    git -C "$REPO_DIR" pull --ff-only
+    exec "$REPO_DIR/install.sh" --profile core --no-packages --yes
+    ;;
+  edit) exec "${EDITOR:-vim}" "$REPO_DIR" ;;
+  explain) explain "${1:-}" ;;
+  help|-h|--help) usage ;;
+  *) echo "Unknown command: $command" >&2; usage >&2; exit 2 ;;
+esac
