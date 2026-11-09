@@ -1,0 +1,4 @@
+interface:
+  display_name: "Study ML Papers"
+  short_description: "Read ML papers through active recall"
+  default_prompt: "Use $study-ml-paper to ingest this arXiv paper and teach it to me through source-grounded questions."
